@@ -25,7 +25,16 @@ function MyEditor() {
   const toggleBold = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     // 'BOLD', 'ITALIC', 'UNDERLINE', 'CODE'
-    setEditorState(RichUtils.toggleInlineStyle(editorState, 'UNDERLINE'));
+    setEditorState(RichUtils.toggleInlineStyle(editorState, 'BOLD'));
+  };
+
+  const handleKeyCommand = (command: any, editorState: any) => {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      setEditorState(newState);
+      return 'handled';
+    }
+    return 'not-handled';
   };
 
   return (
@@ -35,10 +44,11 @@ function MyEditor() {
         <button onClick={toggleBold}>太字</button>
       </div>
       <Editor
-      editorState={editorState}
-      onChange={setEditorState}
-      placeholder="ここから入力を行ってください。"
-    />
+        editorState={editorState}
+        onChange={setEditorState}
+        placeholder="ここから入力を行ってください。"
+        handleKeyCommand={handleKeyCommand}
+      />
     </div>
   );
 }
