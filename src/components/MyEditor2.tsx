@@ -12,22 +12,41 @@ import {
   HeadlineTwoButton,
   HeadlineThreeButton,
 } from '@draft-js-plugins/buttons';
+import createLinkPlugin from '@draft-js-plugins/anchor';
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 
-const text = 'In this editor a toolbar shows up once you select part of the text …';
 
 const MyEditor2 = () => {
-  const [plugins, InlineToolbar] = useMemo(() => {
+  const [plugins, InlineToolbar, LinkButton] = useMemo(() => {
+    const linkPlugin = createLinkPlugin({ placeholder: 'https://...' });
     const inlineToolbarPlugin = createInlineToolbarPlugin();
-    return [[inlineToolbarPlugin], inlineToolbarPlugin.InlineToolbar];
+    return [
+      [inlineToolbarPlugin, linkPlugin],
+      inlineToolbarPlugin.InlineToolbar,
+      linkPlugin.LinkButton,
+    ];
   }, [])
 
   const [editorState, setEditorState] = useState(() =>
     createEditorStateWithText('')
   );
 
+  const [readonly, setReadOnly] = useState(false);
+
   useEffect(() => {
-    setEditorState(createEditorStateWithText(text));
+    const raw = localStorage.getItem('test');
+    if (raw) {
+      const contentState = convertFromRaw(JSON.parse(raw));
+      const newEditorState = EditorState.createWithContent(contentState);
+      setEditorState(newEditorState);
+    }
   }, []);
+
+  const saveContent = () => {
+    const contentState = editorState.getCurrentContent();
+    const raw = convertToRaw(contentState);
+    localStorage.setItem('test', JSON.stringify(raw, null, 2));
+  };
 
   const onChange = (value: any) => {
     setEditorState(value);
@@ -35,10 +54,19 @@ const MyEditor2 = () => {
 
   return (
     <div>
+      <div>
+        {!readonly && <button onClick={saveContent}>保存</button>}
+        {readonly ? (
+          <button onClick={() => setReadOnly(false)}>Edit</button>
+        ) : (
+          <button onClick={() => setReadOnly(true)}>ReadOnly</button>
+        )}
+      </div>
       <Editor
         editorState={editorState}
         onChange={onChange}
         plugins={plugins}
+        readOnly={readonly}
       />
       <InlineToolbar>
       {(externalProps) => (
@@ -51,6 +79,8 @@ const MyEditor2 = () => {
             <HeadlineOneButton {...externalProps} />
             <HeadlineTwoButton {...externalProps} />
             <HeadlineThreeButton {...externalProps} />
+            {/* @ts-ignore */}
+            <LinkButton {...externalProps} />
           </>
         )}
       </InlineToolbar>
