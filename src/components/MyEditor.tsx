@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Editor, EditorState, KeyBindingUtil, RichUtils, convertFromRaw, convertToRaw, getDefaultKeyBinding } from 'draft-js';
+import {
+  Editor,
+  EditorState,
+  KeyBindingUtil,
+  RichUtils,
+  convertFromRaw,
+  convertToRaw,
+  getDefaultKeyBinding
+} from 'draft-js';
 import 'draft-js/dist/Draft.css';
 
 function MyEditor() {
