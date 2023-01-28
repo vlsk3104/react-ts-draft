@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Editor, EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import { Editor, EditorState, RichUtils, convertFromRaw, convertToRaw } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 
 function MyEditor() {
@@ -22,10 +22,17 @@ function MyEditor() {
     localStorage.setItem('test', JSON.stringify(raw, null, 2));
   };
 
+  const toggleBold = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    // 'BOLD', 'ITALIC', 'UNDERLINE', 'CODE'
+    setEditorState(RichUtils.toggleInlineStyle(editorState, 'UNDERLINE'));
+  };
+
   return (
     <div>
       <div>
         <button onClick={saveContent}>保存</button>
+        <button onClick={toggleBold}>太字</button>
       </div>
       <Editor
       editorState={editorState}
