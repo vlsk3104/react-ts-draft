@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Editor, EditorState, RichUtils, convertFromRaw, convertToRaw } from 'draft-js';
+import { Editor, EditorState, KeyBindingUtil, RichUtils, convertFromRaw, convertToRaw, getDefaultKeyBinding } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 
 function MyEditor() {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
   );
+
+  const { hasCommandModifier } = KeyBindingUtil;
+  const myKeyBindingFn = (e: any) => {
+    // Mac環境で[Command + S]ボタンをクリックすると保存処理が行われる
+    if (e.keyCode === 83 && hasCommandModifier(e)) {
+      return 'myeditor-save';
+    }
+    return getDefaultKeyBinding(e);
+  };
 
   useEffect(() => {
     const raw = localStorage.getItem('test');
@@ -29,9 +38,8 @@ function MyEditor() {
   };
 
   const handleKeyCommand = (command: any, editorState: any) => {
-    const newState = RichUtils.handleKeyCommand(editorState, command);
-    if (newState) {
-      setEditorState(newState);
+    if (command === 'myeditor-save') {
+      saveContent();
       return 'handled';
     }
     return 'not-handled';
@@ -48,6 +56,7 @@ function MyEditor() {
         onChange={setEditorState}
         placeholder="ここから入力を行ってください。"
         handleKeyCommand={handleKeyCommand}
+        keyBindingFn={myKeyBindingFn}
       />
     </div>
   );
