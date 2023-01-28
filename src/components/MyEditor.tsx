@@ -7,6 +7,12 @@ function MyEditor() {
     EditorState.createEmpty()
   );
 
-  return <Editor editorState={editorState} onChange={setEditorState} />;
+  return (
+    <Editor
+      editorState={editorState}
+      onChange={setEditorState}
+      placeholder="ここから入力を行ってください。"
+    />
+  );
 }
 export default MyEditor;
