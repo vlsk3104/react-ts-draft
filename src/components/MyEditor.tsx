@@ -45,11 +45,17 @@ function MyEditor() {
     return 'not-handled';
   };
 
+  const toggleHeaderOne = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    setEditorState(RichUtils.toggleBlockType(editorState, 'header-one'));
+  };
+
   return (
     <div>
       <div>
         <button onClick={saveContent}>保存</button>
         <button onClick={toggleBold}>太字</button>
+        <button onClick={toggleHeaderOne}>h1</button>
       </div>
       <Editor
         editorState={editorState}
