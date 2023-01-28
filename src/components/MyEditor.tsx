@@ -9,7 +9,7 @@ function MyEditor() {
   const saveContent = () => {
     const contentState = editorState.getCurrentContent();
     const raw = convertToRaw(contentState);
-    console.log(raw);
+    localStorage.setItem('test', JSON.stringify(raw, null, 2));
   };
 
   return (
