@@ -14,15 +14,24 @@ import {
   HeadlineThreeButton,
 } from '@draft-js-plugins/buttons';
 import createLinkPlugin from '@draft-js-plugins/anchor';
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import {
+  AtomicBlockUtils,
+  EditorState,
+  SelectionState,
+  convertFromRaw,
+  convertToRaw
+} from 'draft-js';
+import createImagePlugin from '@draft-js-plugins/image';
+import '@draft-js-plugins/image/lib/plugin.css';
 
 
 const MyEditor2 = () => {
   const [plugins, InlineToolbar, LinkButton] = useMemo(() => {
     const linkPlugin = createLinkPlugin({ placeholder: 'https://...' });
     const inlineToolbarPlugin = createInlineToolbarPlugin();
+    const imagePlugin = createImagePlugin();
     return [
-      [inlineToolbarPlugin, linkPlugin],
+      [inlineToolbarPlugin, linkPlugin, imagePlugin],
       inlineToolbarPlugin.InlineToolbar,
       linkPlugin.LinkButton,
     ];
@@ -53,6 +62,34 @@ const MyEditor2 = () => {
     setEditorState(value);
   };
 
+  const handleDroppedFiles = (selection: SelectionState, files: Blob[]): any => {
+    console.log(files);
+    //サーバに保存する処理　画像のURLが戻される
+    insertImage('logo192.png');
+  };
+
+  const insertImage = (url: string) => {
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      'image',
+      'IMMUTABLE',
+      { src: url }
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity,
+    });
+    onChange(
+      AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+    );
+  };
+
+  const handleFile = (e: { target: { files: any; }; }) => {
+    console.log(e.target.files);
+    //サーバに保存する処理　画像のURLが戻される
+    insertImage('logo512.png');
+  };
+
   return (
     <div>
       <div>
@@ -62,12 +99,14 @@ const MyEditor2 = () => {
         ) : (
           <button onClick={() => setReadOnly(true)}>ReadOnly</button>
         )}
+        <input type="file" onChange={handleFile} />
       </div>
       <Editor
         editorState={editorState}
         onChange={onChange}
         plugins={plugins}
         readOnly={readonly}
+        handleDroppedFiles={handleDroppedFiles}
       />
       <InlineToolbar>
       {(externalProps) => (
