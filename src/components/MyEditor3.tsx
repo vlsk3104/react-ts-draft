@@ -26,7 +26,7 @@ import '@draft-js-plugins/image/lib/plugin.css';
 import createLinkifyPlugin from '@draft-js-plugins/linkify';
 
 
-const MyEditor2 = () => {
+const MyEditor3 = () => {
   const [plugins, InlineToolbar, LinkButton] = useMemo(() => {
     const linkPlugin = createLinkPlugin({ placeholder: 'https://...' });
     const inlineToolbarPlugin = createInlineToolbarPlugin();
@@ -131,4 +131,4 @@ const MyEditor2 = () => {
   )
 }
 
-export default MyEditor2
+export default MyEditor3
