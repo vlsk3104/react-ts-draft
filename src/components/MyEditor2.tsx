@@ -23,6 +23,7 @@ import {
 } from 'draft-js';
 import createImagePlugin from '@draft-js-plugins/image';
 import '@draft-js-plugins/image/lib/plugin.css';
+import createLinkifyPlugin from '@draft-js-plugins/linkify';
 
 
 const MyEditor2 = () => {
@@ -30,8 +31,9 @@ const MyEditor2 = () => {
     const linkPlugin = createLinkPlugin({ placeholder: 'https://...' });
     const inlineToolbarPlugin = createInlineToolbarPlugin();
     const imagePlugin = createImagePlugin();
+    const linkifyPlugin = createLinkifyPlugin();
     return [
-      [inlineToolbarPlugin, linkPlugin, imagePlugin],
+      [inlineToolbarPlugin, linkPlugin, imagePlugin, linkifyPlugin],
       inlineToolbarPlugin.InlineToolbar,
       linkPlugin.LinkButton,
     ];
