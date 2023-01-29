@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { useEffect, useMemo, useState } from 'react'
 import Editor, { createEditorStateWithText } from '@draft-js-plugins/editor';
 import createInlineToolbarPlugin, {
@@ -17,11 +18,9 @@ import createLinkPlugin from '@draft-js-plugins/anchor';
 import {
   AtomicBlockUtils,
   EditorState,
-  SelectionState,
   convertFromRaw,
   convertToRaw
 } from 'draft-js';
-import createImagePlugin from '@draft-js-plugins/image';
 import '@draft-js-plugins/image/lib/plugin.css';
 import createLinkifyPlugin from '@draft-js-plugins/linkify';
 
@@ -30,10 +29,9 @@ const MyEditor3 = () => {
   const [plugins, InlineToolbar, LinkButton] = useMemo(() => {
     const linkPlugin = createLinkPlugin({ placeholder: 'https://...' });
     const inlineToolbarPlugin = createInlineToolbarPlugin();
-    const imagePlugin = createImagePlugin();
     const linkifyPlugin = createLinkifyPlugin();
     return [
-      [inlineToolbarPlugin, linkPlugin, imagePlugin, linkifyPlugin],
+      [inlineToolbarPlugin, linkPlugin, linkifyPlugin],
       inlineToolbarPlugin.InlineToolbar,
       linkPlugin.LinkButton,
     ];
@@ -61,17 +59,18 @@ const MyEditor3 = () => {
     localStorage.setItem('test', JSON.stringify(raw, null, 2));
   };
 
-  const onChange = (value: any) => {
+  const onChange = (value) => {
+    console.log({value})
     setEditorState(value);
   };
 
-  const handleDroppedFiles = (selection: SelectionState, files: Blob[]): any => {
+  const handleDroppedFiles = (selection, files) => {
     console.log(files);
     //サーバに保存する処理　画像のURLが戻される
     insertImage('logo192.png');
   };
 
-  const insertImage = (url: string) => {
+  const insertImage = (url) => {
     const contentState = editorState.getCurrentContent();
     const contentStateWithEntity = contentState.createEntity(
       'image',
@@ -87,10 +86,33 @@ const MyEditor3 = () => {
     );
   };
 
-  const handleFile = (e: { target: { files: any; }; }) => {
+  const handleFile = (e) => {
     console.log(e.target.files);
     //サーバに保存する処理　画像のURLが戻される
     insertImage('logo512.png');
+  };
+
+  const blockRenderer = (contentBlock, _ref) => {
+    const getEditorState = _ref.getEditorState;
+    if (contentBlock.getType() === 'atomic') {
+      const contentState = getEditorState().getCurrentContent();
+      const entity = contentBlock.getEntityAt(0);
+      if (!entity) return null;
+      const type = contentState.getEntity(entity).getType();
+      if (type === 'image' || type === 'IMAGE') {
+        return {
+          component: ImageComponent,
+          editable: false,
+        };
+      }
+    }
+    return null;
+  };
+
+  const ImageComponent = ({ block, contentState }) => {
+   //srcを取得するための処理
+    const data = contentState.getEntity(block.getEntityAt(0)).getData();
+    return <img src={data.src} alt={data.src} />;
   };
 
   return (
@@ -104,12 +126,14 @@ const MyEditor3 = () => {
         )}
         <input type="file" onChange={handleFile} />
       </div>
+
       <Editor
         editorState={editorState}
         onChange={onChange}
         plugins={plugins}
         readOnly={readonly}
         handleDroppedFiles={handleDroppedFiles}
+        blockRendererFn={blockRenderer}
       />
       <InlineToolbar>
       {(externalProps) => (
@@ -118,7 +142,7 @@ const MyEditor3 = () => {
             <BoldButton {...externalProps} />
             <UnderlineButton {...externalProps} />
             {/* @ts-ignore */}
-            <Separator {...externalProps} />
+            {/* <Separator {...externalProps} /> */}
             <HeadlineOneButton {...externalProps} />
             <HeadlineTwoButton {...externalProps} />
             <HeadlineThreeButton {...externalProps} />
